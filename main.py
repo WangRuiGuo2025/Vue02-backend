@@ -91,6 +91,39 @@ async def sendReply(data:reply):
     finally:
         if conn:
             conn.close()
+@app.get("/number")
+async def number():
+    conn = None
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM message_table ORDER BY id ASC")
+        rows = cursor.fetchall()
+        result = []
+        max_id = 0
+        for row in rows:
+            result.append({
+                "id": row["id"],
+           })
+        for item in result:
+            current_id = item["id"]
+            if current_id > max_id:
+                max_id = current_id
+        return {    
+            "code": 200,
+            "message": "success",
+            "data": max_id
+        }
+    except Error as e:
+        return {
+            "code": 500,
+            "message": "failed",
+            "error": str(e)
+        }
+    finally:
+        if conn:
+            conn.close()
 
 @app.get("/list")
 async def getMessage():
